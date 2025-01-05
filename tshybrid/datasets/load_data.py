@@ -7,7 +7,7 @@ DIRNAME = "data"
 MODULE = os.path.dirname(__file__)
 
 
-def generate_synthetic_series(
+def generate_synthetic_values(
 		freq,
 		length,
 		start_date,
@@ -16,6 +16,7 @@ def generate_synthetic_series(
 		variance=0,
 		seasonality_amplitude=0, 
 		seasonal_period=1,
+		column_name=None
 	):
 
 	date_range = pd.date_range(start=start_date, periods=length, freq=freq)
@@ -25,9 +26,13 @@ def generate_synthetic_series(
 	residuals = np.random.normal(0, variance, size=length)
 
 	synthetic_data = trend + seasonality + residuals
-	synthetic_series = pd.Series(synthetic_data, index=date_range)
 
-	return synthetic_series
+	if column_name is None:
+		synthetic_values = pd.Series(synthetic_data, index=date_range)
+	else:
+		synthetic_values = pd.DataFrame({column_name: synthetic_data}, index=date_range)
+
+	return synthetic_values
 
 def load_air_passegers():
 	name = "AirPassengers"
