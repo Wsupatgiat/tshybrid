@@ -20,12 +20,14 @@ class ShiftMin(BaseEstimator, TransformerMixin, BaseTimeSeriesProcessor):
 		return self
 
 	def transform(self, X):
+		X = X.copy()
 		sel_X = self._select_series(X)
 		shifted_series = sel_X - self.min_value + self.desired_min
 
 		return self._replace_series(X, shifted_series)
 
 	def inverse_transform(self, X):
+		X = X.copy()
 		sel_X = self._select_series(X)
 		original_series = sel_X + self.min_value - self.desired_min
 
