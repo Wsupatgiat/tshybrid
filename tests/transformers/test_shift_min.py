@@ -71,7 +71,6 @@ def test_shift_min_alter_original_series(synthetic_series, desired_min):
 	created_inversed_series = shift_min_transformer.inverse_transform(created_shifted_series)
 	assert_series_equal(synthetic_series, expected_original_series, check_exact=True)
 
-
 def test_shift_min_transform_dataframe(synthetic_dataframe, desired_min, target_column):
 	expected_shifted_df, _ = get_expected_shifted_df(synthetic_dataframe, desired_min, target_column)
 
@@ -79,7 +78,6 @@ def test_shift_min_transform_dataframe(synthetic_dataframe, desired_min, target_
 	created_shifted_df = shift_min_transformer.fit_transform(synthetic_dataframe)
 	
 	assert_frame_equal(created_shifted_df, expected_shifted_df, check_exact=True)
-
 
 def test_shift_min_minimum_dataframe(synthetic_dataframe, desired_min, target_column):
 	_, expected_min_value = get_expected_shifted_df(synthetic_dataframe, desired_min, target_column)

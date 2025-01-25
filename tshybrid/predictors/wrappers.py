@@ -4,16 +4,16 @@ from sklearn.base import BaseEstimator, RegressorMixin
 from tshybrid.base.base_class import BaseTimeSeriesProcessor
 
 
-class StatsmodelsWrapper(BaseEstimator, RegressorMixin, BaseTimeSeriesProcessor):
+class StatsmodelsWrapper(BaseTimeSeriesProcessor, BaseEstimator, RegressorMixin):
 	def __init__(self, target_column='endog', model_class=None, init_params=None, fit_params=None, **kwargs):
 		#TODO check model class added
 		self.model_class = model_class
-		self.target_column = target_column
 
 		self.init_params = init_params if init_params is not None else {}
 		self.fit_params = fit_params if fit_params is not None else {}
 		self.kwargs = kwargs
 
+		super().__init__(target_column=target_column)
 
 	def _parse_kwargs(self):
 		for parameter, value in self.kwargs.items():
