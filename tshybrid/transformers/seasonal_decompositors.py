@@ -1,61 +1,96 @@
-from sklearn.base import BaseEstimator, TransformerMixin
 import pandas as pd
 import numpy as np
+from sklearn.base import BaseEstimator, TransformerMixin
+from statsmodels.tsa.seasonal import STL
 
+from tshybrid.base.base_class import BaseTimeSeriesProcessor
 
-class STLDecompose(BaseEstimator, TransformerMixin):
-	def __init__(self, target_column='endog', degree=2):
+class STLDecompose(BaseTimeSeriesProcessor, BaseEstimator, TransformerMixin):
+	'''
+	inverse always return a dataframe
+	maybe fix this later?
+	'''
+	def __init__(
+		self, target_column='endog',
+		trend_column='trend',
+		season_column='season',
+		residuals_column='residuals',
+		#INIT
+		period=None,
+		seasonal=7,
+		trend=None,
+		low_pass=None,
+		seasonal_deg=1,
+		trend_deg=1,
+		low_pass_deg=1,
+		robust=False,
+		seasonal_jump=1,
+		trend_jump=1,
+		low_pass_jump=1,
+		#FIT
+		inner_iter=None,
+		outer_iter=None
+	):
+		self.trend_column = trend_column
+		self.season_column = season_column
+		self.residuals_column = residuals_column
+
+		self.period = period
+		self.seasonal = seasonal
+		self.trend = trend
+		self.low_pass = low_pass
+		self.seasonal_deg = seasonal_deg
+		self.trend_deg = trend_deg
+		self.low_pass_deg = low_pass_deg
+		self.robust = robust
+		self.seasonal_jump = seasonal_jump
+		self.trend_jump = trend_jump
+		self.low_pass_jump = low_pass_jump
+
+		self.inner_iter = inner_iter
+		self.outer_iter = outer_iter
+
+		super().__init__(target_column=target_column)
 
 	def fit(self, X, y=None):
-		if isinstance(X, pd.Series):
-			sel_X = X
-		elif isinstance(X, pd.DataFrame):
-			sel_X = X[self.target_column]
-		else:
-			#TODO add test case for this
-			raise TypeError(f"Expected either a Dataframe or Series type, but got {type(X)}")
+		sel_X = self._select_series(X)
+		self.stl_class = STL(
+			sel_X,
+			period = self.period,
+			seasonal = self.seasonal,
+			trend = self.trend,
+			low_pass = self.low_pass,
+			seasonal_deg = self.seasonal_deg,
+			trend_deg = self.trend_deg,
+			low_pass_deg = self.low_pass_deg,
+			robust = self.robust,
+			seasonal_jump = self.seasonal_jump,
+			trend_jump = self.trend_jump,
+			low_pass_jump = self.low_pass_jump
+		)
 
-		if (sel_X < 0).any() and self.degree % 2 == 0:
-			raise ValueError("Series contain negative numbers, which is incompatible with even degree roots")
-
-		if self.degree < 2:
-			raise ValueError(f"Expected degree higher than 1, but got {self.degree}")
+		self.stl_fit = self.stl_class.fit(inner_iter=self.inner_iter, outer_iter=self.outer_iter)
 
 		return self
 
 	def transform(self, X):
-		if isinstance(X, pd.Series):
-			sel_X = X
-		elif isinstance(X, pd.DataFrame):
-			sel_X = X[self.target_column]
-		else:
-			#TODO add test case for this
-			raise TypeError(f"Expected either a Dataframe or Series type, but got {type(X)}")
+		X = X.copy()
+		sel_X = self._select_series(X)
 
-		transformed_series = sel_X**(1/self.degree)
+		seasonal_decomposed = pd.DataFrame({
+			self.trend_column: self.stl_fit.trend,
+			self.season_column: self.stl_fit.seasonal,
+			self.residuals_column: self.stl_fit.resid
+		})
 
-		if isinstance(X, pd.Series):
-			return transformed_series
-		else:
-			return pd.DataFrame({self.target_column: transformed_series})
-		
-
-		return X**(1/self.degree)
+		return self._replace_series_df(X, seasonal_decomposed)
 
 	def inverse_transform(self, X):
-		if isinstance(X, pd.Series):
-			sel_X = X
-		elif isinstance(X, pd.DataFrame):
-			sel_X = X[self.target_column]
-		else:
-			#TODO add test case for this
-			raise TypeError(f"Expected either a Dataframe or Series type, but got {type(X)}")
+		X = X.copy()
+		dropped_columns = [self.trend_column, self.season_column, self.residuals_column]
 
-		original_series = sel_X**self.degree
+		original_series = X[dropped_columns].sum(axis=1)
 
-		if isinstance(X, pd.Series):
-			return original_series
-		else:
-			return pd.DataFrame({self.target_column: original_series})
+		return self._replace_df_series(X, original_series, dropped_columns)
 
 

@@ -14,8 +14,7 @@ from tshybrid.cross_validators import SlidingWindowCV
 		(1, 1)
 	]
 )
-def test_sliding_window_cv(monthly_seasonal_synthetic_series, train_size, horizon):
-	synthetic_series, _ = monthly_seasonal_synthetic_series
+def test_sliding_window_cv(synthetic_series, train_size, horizon):
 
 	first_train_value_list = []
 	last_train_value_list = []

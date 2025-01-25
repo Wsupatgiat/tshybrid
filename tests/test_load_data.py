@@ -1,12 +1,13 @@
 import pytest
-from tshybrid.datasets.load_data import generate_synthetic_values
 import numpy as np
+from pandas.testing import assert_series_equal, assert_frame_equal
+
+from tshybrid.datasets.load_data import generate_synthetic_values
 
 
 
-def test_monthly_synthetic_series_values(monthly_seasonal_synthetic_series):
+def test_monthly_synthetic_series_values(synthetic_series):
 	np.random.seed(42)
-	synthetic_series, _ = monthly_seasonal_synthetic_series
 	created_series = generate_synthetic_values(
 		'MS', 48, '2021-01-01',
 		trend_slope=20,
@@ -16,11 +17,10 @@ def test_monthly_synthetic_series_values(monthly_seasonal_synthetic_series):
 		seasonal_period=12
 	)
 
-	assert synthetic_series.equals(created_series)
+	assert_series_equal(synthetic_series, created_series, check_exact=True)
 
-def test_monthly_synthetic_dataframe_values(monthly_seasonal_synthetic_dataframe):
+def test_monthly_synthetic_dataframe_values(synthetic_dataframe):
 	np.random.seed(42)
-	synthetic_dataframe, _ = monthly_seasonal_synthetic_dataframe
 
 	created_dataframe = generate_synthetic_values(
 		'MS', 48, '2021-01-01',
@@ -32,4 +32,8 @@ def test_monthly_synthetic_dataframe_values(monthly_seasonal_synthetic_dataframe
 		column_name='endog'
 	)
 
-	assert synthetic_dataframe.equals(created_dataframe)
+	created_dataframe['mock_column'] = created_dataframe['endog'] * 0.5
+
+
+
+	assert_frame_equal(synthetic_dataframe, created_dataframe, check_exact=True)
