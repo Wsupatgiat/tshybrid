@@ -178,6 +178,7 @@ def test_initialize_sm_wrapper_parameters_as_kwargs_using_dataframe(synthetic_da
 	wrapper_model_predictions = wrapper_model.predict(prediction_dataframe)
 
 
+	#TODO use assert_frame_equal
 	assert wrapper_model_predictions[unselected_column].equals(prediction_dataframe[unselected_column])
 	assert wrapper_model_predictions[selected_column].equals(sm_predictions)
 

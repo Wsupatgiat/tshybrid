@@ -21,11 +21,6 @@ def degree_even(request):
 def degree_error_trigger(request):
 	return request.param
 
-@pytest.fixture(params=['endog', 'mock_column'])
-def target_column(request):
-	return request.param
-
-
 
 def get_expected_root_transformed_series(series, degree):
 	series = series.copy()

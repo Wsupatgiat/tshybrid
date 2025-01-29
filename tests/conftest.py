@@ -155,3 +155,6 @@ def positive_synthetic_dataframe():
 
 
 
+@pytest.fixture(params=['endog', 'mock_column'])
+def target_column(request):
+	return request.param

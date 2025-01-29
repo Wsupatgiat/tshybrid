@@ -27,11 +27,6 @@ def get_expected_shifted_df(df, desired_min, target_column):
 def desired_min(request):
 	return request.param
 
-@pytest.fixture(params=['endog', 'mock_column'])
-def target_column(request):
-	return request.param
-
-
 def test_shift_min_transform_series(synthetic_series, desired_min):
 	expected_shifted_series, _ = get_expected_shifted_series(synthetic_series, desired_min)
 
