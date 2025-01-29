@@ -1,10 +1,12 @@
 import pandas as pd
+
 from sklearn.base import BaseEstimator, RegressorMixin
+from sklearn.utils.validation import check_is_fitted
 
 from tshybrid.base.base_class import BaseTimeSeriesProcessor
 
 
-class StatsmodelsWrapper(BaseTimeSeriesProcessor, BaseEstimator, RegressorMixin):
+class StatsmodelsWrapper(BaseTimeSeriesProcessor, RegressorMixin, BaseEstimator):
 	def __init__(self, target_column='endog', model_class=None, init_params=None, fit_params=None, **kwargs):
 		#TODO check model class added
 		self.model_class = model_class
@@ -40,8 +42,13 @@ class StatsmodelsWrapper(BaseTimeSeriesProcessor, BaseEstimator, RegressorMixin)
 		self.model = self.model_class(endog=sel_X, **self.init_params)
 		self.model_fit = self.model.fit(**self.fit_params)
 
+		self.is_fitted_ = True
+		return self
+
 	#TODO FIX RETURN COL
 	def predict(self, X):
+		check_is_fitted(self)
+
 		sel_X = self._select_series(X)
 
 		predictions = self.model_fit.predict(start=sel_X.index[0], end=sel_X.index[-1])

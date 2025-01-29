@@ -1,11 +1,14 @@
 import pandas as pd
 import numpy as np
+
 from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.utils.validation import check_is_fitted
+
 from statsmodels.tsa.seasonal import STL
 
 from tshybrid.base.base_class import BaseTimeSeriesProcessor
 
-class STLDecompose(BaseTimeSeriesProcessor, BaseEstimator, TransformerMixin):
+class STLDecompose(BaseTimeSeriesProcessor, TransformerMixin, BaseEstimator):
 	'''
 	inverse always return a dataframe
 	maybe fix this later?
@@ -71,9 +74,12 @@ class STLDecompose(BaseTimeSeriesProcessor, BaseEstimator, TransformerMixin):
 
 		self.stl_fit = self.stl_class.fit(inner_iter=self.inner_iter, outer_iter=self.outer_iter)
 
+		self.is_fitted_ = True
 		return self
 
 	def transform(self, X):
+		check_is_fitted(self)
+
 		X = X.copy()
 		sel_X = self._select_series(X)
 
@@ -86,6 +92,8 @@ class STLDecompose(BaseTimeSeriesProcessor, BaseEstimator, TransformerMixin):
 		return self._replace_series_df(X, seasonal_decomposed)
 
 	def inverse_transform(self, X):
+		check_is_fitted(self)
+
 		X = X.copy()
 		dropped_columns = [self.trend_column, self.season_column, self.residuals_column]
 

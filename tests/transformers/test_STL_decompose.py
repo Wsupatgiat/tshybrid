@@ -37,10 +37,6 @@ def stl_init_parameters(request):
 def stl_fit_parameters(request):
 	return request.param
 
-#TODO move to con test
-@pytest.fixture(params=['endog', 'mock_column'])
-def target_column(request):
-	return request.param
 
 def get_expected_decomposed_series(series, stl_init_parameters, stl_fit_parameters):
 	series = series.copy()
