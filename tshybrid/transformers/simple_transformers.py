@@ -16,6 +16,8 @@ class ShiftMin(BaseTimeSeriesProcessor, TransformerMixin, BaseEstimator):
 		super().__init__(target_column=target_column)
 
 	def fit(self, X, y=None):
+		super()._initialize_fit_state(X)
+
 		sel_X = self._select_series(X)
 		self.min_value = np.min(sel_X)
 
@@ -47,6 +49,8 @@ class RootTransformer(BaseTimeSeriesProcessor, TransformerMixin, BaseEstimator):
 		super().__init__(target_column=target_column)
 
 	def fit(self, X, y=None):
+		super()._initialize_fit_state(X)
+
 		sel_X = self._select_series(X)
 
 		if (sel_X < 0).any() and self.degree % 2 == 0:

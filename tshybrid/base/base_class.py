@@ -7,8 +7,12 @@ class BaseTimeSeriesProcessor:
 	'''
 	handles and validates the correct input (pandas series or dataframe)
 	'''
-	def _set_initial_type(self, X):
-		self.initial_type = type(X)
+	def _initialize_fit_state(self, X):
+		self._fitted_type = type(X)
+		self._freq = X.index.freq or X.index.inferred_freq
+		if self._freq is None:
+			raise ValueError("No frequency found")
+
 		return self
 
 	def _select_series(self, X):
@@ -39,14 +43,11 @@ class BaseTimeSeriesProcessor:
 			raise TypeError(f"Expected either a DataFrame or Series type, got {type(X)}")
 
 	def _replace_df_series(self, X, new_X, dropped_columns):
-		if isinstance(X, pd.DataFrame):
+		if self._fitted_type == pd.Series:
+			return new_X
+		elif self._fitted_type == pd.DataFrame:
 			X[self.target_column] = new_X
 			X = X.drop(columns=dropped_columns)
-
-			if X.shape[1] == 1:
-				return new_X
-			else:
-				return X
-
+			return X
 		else:
 			raise TypeError(f"Expected either a DataFrame, got {type(X)}")

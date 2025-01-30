@@ -87,6 +87,27 @@ def test_STL_decompose_series(synthetic_series, stl_init_parameters, stl_fit_par
 
 	assert_frame_equal(created_decomposed_series, expected_decomposed_series, check_exact=True)
 
+def test_STL_inverse_decompose_series(synthetic_series, stl_init_parameters, stl_fit_parameters):
+	stl_decomposer = STLDecompose(**stl_init_parameters | stl_fit_parameters)
+	created_decomposed_series = stl_decomposer.fit_transform(synthetic_series)
+	created_inversed_series = stl_decomposer.inverse_transform(created_decomposed_series)
+	
+	assert_series_equal(created_inversed_series, synthetic_series)
+
+def test_STL_decompose_alter_original_series(synthetic_series, stl_init_parameters, stl_fit_parameters):
+	expected_original_series = synthetic_series.copy()
+
+	stl_decomposer = STLDecompose(**stl_init_parameters | stl_fit_parameters)
+
+	created_decomposed_series = stl_decomposer.fit_transform(synthetic_series)
+	assert_series_equal(synthetic_series, expected_original_series, check_exact=True)
+
+	created_inversed_series = stl_decomposer.inverse_transform(created_decomposed_series)
+	assert_series_equal(synthetic_series, expected_original_series, check_exact=True)
+
+def test_STL_decompose_alter_series(synthetic_series, stl_init_parameters, stl_fit_parameters):
+	assert_alter_original_series(synthetic_series, STLDecompose(), stl_init_parameters | stl_fit_parameters)
+
 def test_STL_decompose_dataframe(synthetic_dataframe, stl_init_parameters, stl_fit_parameters, target_column):
 	expected_decomposed_df = get_expected_decomposed_df(
 		synthetic_dataframe,
