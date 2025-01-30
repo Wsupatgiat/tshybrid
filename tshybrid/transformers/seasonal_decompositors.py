@@ -56,6 +56,8 @@ class STLDecompose(BaseTimeSeriesProcessor, TransformerMixin, BaseEstimator):
 		super().__init__(target_column=target_column)
 
 	def fit(self, X, y=None):
+		super()._initialize_fit_state(X)
+
 		sel_X = self._select_series(X)
 		self.stl_class = STL(
 			sel_X,
